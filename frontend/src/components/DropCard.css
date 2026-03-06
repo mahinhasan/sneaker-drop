@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap');
 
 :root {
-  --bg: #111;
-  --border: #222;
-  --accent: #e8ff00;
-  --accent2: #ff4d00;
-  --green: #00e676;
-  --red: #ff1744;
-  --muted: #555;
-  --text: #f0f0f0;
+  --bg: #1e293b; /* Slate 800 (Ashy) */
+  --border: #334155; /* Slate 700 */
+  --accent: #6366f1; /* Indigo 500 */
+  --accent2: #f97316;
+  --green: #34d399; /* Emerald 400 */
+  --red: #f87171; /* Red 400 */
+  --muted: #94a3b8; /* Slate 400 */
+  --text: #f8fafc; /* Slate 50 (White) */
 }
 
 @keyframes pulse {
@@ -20,11 +20,11 @@
   background: var(--bg);
   border: 1px solid var(--border);
   font-family: 'DM Mono', monospace;
-  font-size: 13px;
+  font-size: 11px;
   color: var(--text);
   display: flex;
   flex-direction: column;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   height: 100%;
@@ -35,7 +35,9 @@
 }
 
 .drop-card:hover {
-  box-shadow: 0 0 0 1px #333;
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.5);
 }
 
 .drop-card-top-bar {
@@ -48,13 +50,13 @@
 }
 
 .drop-card-top-bar.available {
-  background: #001a05;
+  background: #064e3b;
   border-bottom-color: var(--green);
   color: var(--green);
 }
 
 .drop-card-top-bar.sold-out {
-  background: #1a0000;
+  background: #7f1d1d;
   border-bottom-color: var(--red);
   color: var(--red);
 }
@@ -75,15 +77,15 @@
 
 .drop-card-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 2px;
+  font-size: 18px;
+  letter-spacing: 1.5px;
   line-height: 1.1;
   color: var(--text);
 }
 
 .drop-card-price {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
+  font-size: 22px;
   letter-spacing: 1px;
   color: var(--accent);
 }
@@ -109,7 +111,7 @@
 
 .drop-card-bar-bg {
   height: 3px;
-  background: #222;
+  background: #334155;
   position: relative;
 }
 
@@ -127,14 +129,14 @@
 }
 
 .drop-card-reserved-box {
-  background: #1a1a00;
+  background: #1e1b4b;
   border: 1px solid var(--accent);
   padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: var(--accent);
+  color: #a5b4fc;
   letter-spacing: 1px;
 }
 
@@ -158,24 +160,25 @@
 .drop-card-btn:disabled {
   cursor: not-allowed;
   color: var(--muted);
-  background: #1a1a00;
-  border: 1px solid #333;
+  background: #0f172a;
+  border: 1px solid var(--border);
 }
 
 .drop-card-btn-buy {
   background: var(--accent);
-  color: #000;
+  color: #fff;
   border: 1px solid var(--accent);
 }
 
 .drop-card-btn-buy:hover:not(:disabled) {
-  background: #fff !important;
+  background: #4338ca !important;
+  border-color: #4338ca !important;
 }
 
 .drop-card-btn-res {
   background: transparent;
   color: var(--text);
-  border: 1px solid #444;
+  border: 1px solid var(--border);
   font-weight: 400;
 }
 
@@ -185,7 +188,7 @@
 }
 
 .drop-card-feed {
-  border-top: 1px solid #1a1a1a;
+  border-top: 1px solid var(--border);
   padding-top: 14px;
 }
 

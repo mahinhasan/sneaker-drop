@@ -16,10 +16,18 @@ export default function App() {
   const [loadingPurchases, setLoadingPurchases] = useState({});
   const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [purchases, setPurchases] = useState([]);
+  const [allPurchases, setAllPurchases] = useState([]);
+  const [dropForm, setDropForm] = useState({ name: '', price: '', stock: '' });
+  const [isCreatingDrop, setIsCreatingDrop] = useState(false);
 
   useEffect(() => {
     loadData();
-  }, [user.id]);
+    if (activeTab === 'history') {
+      loadPurchases();
+      loadAllPurchases();
+    }
+  }, [user.id, activeTab]);
 
   const loadData = async (showLoading = true) => {
     try {
@@ -30,6 +38,44 @@ export default function App() {
       addNotification('Failed to load drops', 'danger');
     } finally {
       if (showLoading) setLoading(false);
+    }
+  };
+
+  const loadPurchases = async () => {
+    try {
+      const data = await purchaseService.getUserPurchases(user.id);
+      setPurchases(data);
+    } catch (err) {
+      addNotification('Failed to load purchase history', 'danger');
+    }
+  };
+
+  const loadAllPurchases = async () => {
+    try {
+      const data = await purchaseService.getAllPurchases();
+      setAllPurchases(data);
+    } catch (err) {
+      addNotification('Failed to load system orders', 'danger');
+    }
+  };
+
+  const handleCreateDrop = async (e) => {
+    e.preventDefault();
+    if (!dropForm.name || !dropForm.price || !dropForm.stock) return;
+    try {
+      setIsCreatingDrop(true);
+      await dropService.createDrop({
+        name: dropForm.name,
+        price: parseFloat(dropForm.price),
+        totalStock: parseInt(dropForm.stock)
+      });
+      addNotification('New drop initialized!', 'success');
+      setDropForm({ name: '', price: '', stock: '' });
+      loadData(false);
+    } catch (err) {
+      addNotification('Failed to create drop', 'danger');
+    } finally {
+      setIsCreatingDrop(false);
     }
   };
 
@@ -95,8 +141,8 @@ export default function App() {
           <main className="app-main">
             <div className="app-page-header">
               <div className="app-page-title">
-                <small className="app-page-sub">// inventory status</small>
-                Live Drop Dashboard
+                <small className="app-page-sub">// {activeTab === 'dashboard' ? 'inventory status' : 'user account'}</small>
+                {activeTab === 'dashboard' ? 'Live Drop Dashboard' : 'History & Management'}
               </div>
               <div className="app-live-row">
                 <PulseDot color="#00e676" />
@@ -104,29 +150,113 @@ export default function App() {
               </div>
             </div>
 
-            {loading ? (
-                <div className="app-spinner">
-                  <div>Loading drops...</div>
-                </div>
-            ) : drops.length === 0 ? (
-                <div className="app-empty">
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 3, marginBottom: 8 }}>No Active Drops</div>
-                  <div style={{ fontSize: 11 }}>Check back later or initialize a new drop via API.</div>
-                </div>
+            {activeTab === 'dashboard' ? (
+                loading ? (
+                    <div className="app-spinner">
+                      <div>Loading drops...</div>
+                    </div>
+                ) : drops.length === 0 ? (
+                    <div className="app-empty">
+                      <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, letterSpacing: 3, marginBottom: 8 }}>No Active Drops</div>
+                      <div style={{ fontSize: 11 }}>Check back later or initialize a new drop via API.</div>
+                    </div>
+                ) : (
+                    <div className="app-grid">
+                      {drops.map((drop, i) => (
+                          <div key={drop.id} className="fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
+                            <DropCard
+                                drop={drop}
+                                onReserve={handleReserve}
+                                onPurchase={handlePurchase}
+                                loadingReservation={loadingReservations[drop.id]}
+                                loadingPurchase={loadingPurchases[drop.id]}
+                                currentReservation={currentReservation}
+                            />
+                          </div>
+                      ))}
+                    </div>
+                )
             ) : (
-                <div className="app-grid">
-                  {drops.map((drop, i) => (
-                      <div key={drop.id} className="fade-up" style={{ animationDelay: `${i * 0.08}s` }}>
-                        <DropCard
-                            drop={drop}
-                            onReserve={handleReserve}
-                            onPurchase={handlePurchase}
-                            loadingReservation={loadingReservations[drop.id]}
-                            loadingPurchase={loadingPurchases[drop.id]}
-                            currentReservation={currentReservation}
+                <div className="history-container fade-up">
+                  <div className="history-column">
+                    <div className="history-card">
+                      <div className="history-title">My Order History</div>
+                      {purchases.length === 0 ? (
+                          <div style={{ color: 'var(--app-muted)', fontSize: 11 }}>No purchases found.</div>
+                      ) : (
+                          <div className="history-list">
+                            {purchases.map(p => (
+                                <div key={p.id} className="history-item">
+                                  <div className="history-item-info">
+                                    <div className="history-item-name">{p.Drop?.name || 'Unknown Item'}</div>
+                                    <div className="history-item-date">{new Date(p.createdAt).toLocaleString()}</div>
+                                  </div>
+                                  <div className="history-item-price">${parseFloat(p.Drop?.price || 0).toLocaleString()}</div>
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+
+                    <div className="history-card" style={{ marginTop: '20px' }}>
+                      <div className="history-title">System Wide Orders</div>
+                      {allPurchases.length === 0 ? (
+                          <div style={{ color: 'var(--app-muted)', fontSize: 11 }}>No system orders yet.</div>
+                      ) : (
+                          <div className="history-list">
+                            {allPurchases.map(p => (
+                                <div key={p.id} className="history-item">
+                                  <div className="history-item-info">
+                                    <div className="history-item-name">{p.Drop?.name || 'Unknown Item'}</div>
+                                    <div className="history-item-user">User: {p.User?.user || p.userId}</div>
+                                    <div className="history-item-date">{new Date(p.createdAt).toLocaleString()}</div>
+                                  </div>
+                                  <div className="history-item-price">${parseFloat(p.Drop?.price || 0).toLocaleString()}</div>
+                                </div>
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="history-card">
+                    <div className="history-title">Add New Drop</div>
+                    <form className="admin-form" onSubmit={handleCreateDrop}>
+                      <div className="form-group">
+                        <label>Drop Name</label>
+                        <input
+                            type="text"
+                            placeholder="e.g. Jordan 1 Retro"
+                            value={dropForm.name}
+                            onChange={e => setDropForm({ ...dropForm, name: e.target.value })}
+                            required
                         />
                       </div>
-                  ))}
+                      <div className="form-group">
+                        <label>Price ($)</label>
+                        <input
+                            type="number"
+                            placeholder="190"
+                            value={dropForm.price}
+                            onChange={e => setDropForm({ ...dropForm, price: e.target.value })}
+                            required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Total Stock</label>
+                        <input
+                            type="number"
+                            placeholder="100"
+                            value={dropForm.stock}
+                            onChange={e => setDropForm({ ...dropForm, stock: e.target.value })}
+                            required
+                        />
+                      </div>
+                      <button className="form-submit-btn" type="submit" disabled={isCreatingDrop}>
+                        {isCreatingDrop ? 'Initializing...' : 'Launch Drop'}
+                      </button>
+                    </form>
+                  </div>
                 </div>
             )}
           </main>

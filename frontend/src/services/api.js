@@ -19,6 +19,10 @@ const reservationService = {
 const purchaseService = {
   completePurchase: (reservationId) => 
     api.post('/purchases', { reservationId }).then(res => res.data),
+  getUserPurchases: (userId) =>
+    api.get(`/purchases/user/${userId}`).then(res => res.data),
+  getAllPurchases: () =>
+    api.get('/purchases').then(res => res.data),
 };
 
 export { 
