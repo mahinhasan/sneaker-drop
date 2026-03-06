@@ -1,0 +1,12 @@
+let ioInstance = null;
+
+exports.init = (io) => {
+  ioInstance = io;
+};
+
+exports.getIo = () => {
+  if (!ioInstance) {
+    throw new Error('Socket.io not initialized');
+  }
+  return ioInstance;
+};
