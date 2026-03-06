@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #111;
+  --border: #222;
+  --accent: #e8ff00;
+  --accent2: #ff4d00;
+  --green: #00e676;
+  --red: #ff1744;
+  --muted: #555;
+  --text: #f0f0f0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(.7); }
+}
+
+.drop-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.drop-card.reserved {
+  border-color: var(--accent);
+}
+
+.drop-card:hover {
+  box-shadow: 0 0 0 1px #333;
+}
+
+.drop-card-top-bar {
+  padding: 4px 16px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-bottom: 1px solid;
+}
+
+.drop-card-top-bar.available {
+  background: #001a05;
+  border-bottom-color: var(--green);
+  color: var(--green);
+}
+
+.drop-card-top-bar.sold-out {
+  background: #1a0000;
+  border-bottom-color: var(--red);
+  color: var(--red);
+}
+
+.drop-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 16px;
+}
+
+.drop-card-header {
+  display: flex;
+  justify-content: space-between;
+  alignItems: flex-start;
+}
+
+.drop-card-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.drop-card-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  color: var(--accent);
+}
+
+.drop-card-stock-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.drop-card-stock-count {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.drop-card-stock-muted {
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.drop-card-bar-bg {
+  height: 3px;
+  background: #222;
+  position: relative;
+}
+
+.drop-card-bar-fill {
+  height: 100%;
+  transition: width 0.8s ease;
+}
+
+.drop-card-bar-fill.normal {
+  background: var(--accent);
+}
+
+.drop-card-bar-fill.low {
+  background: var(--red);
+}
+
+.drop-card-reserved-box {
+  background: #1a1a00;
+  border: 1px solid var(--accent);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.drop-card-timer {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.drop-card-btn {
+  width: 100%;
+  padding: 11px 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.drop-card-btn:disabled {
+  cursor: not-allowed;
+  color: var(--muted);
+  background: #1a1a00;
+  border: 1px solid #333;
+}
+
+.drop-card-btn-buy {
+  background: var(--accent);
+  color: #000;
+  border: 1px solid var(--accent);
+}
+
+.drop-card-btn-buy:hover:not(:disabled) {
+  background: #fff !important;
+}
+
+.drop-card-btn-res {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid #444;
+  font-weight: 400;
+}
+
+.drop-card-btn-res:hover:not(:disabled) {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.drop-card-feed {
+  border-top: 1px solid #1a1a1a;
+  padding-top: 14px;
+}
+
+.drop-card-feed-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.drop-card-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.drop-card-feed-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse 3s infinite;
+}
+
+.drop-card-feed-user {
+  color: var(--text);
+  font-weight: 500;
+  margin-right: 4px;
+}
