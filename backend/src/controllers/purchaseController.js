@@ -1,6 +1,8 @@
 const sequelize = require('../config/database');
 const Reservation = require('../models/Reservation');
 const Purchase = require('../models/Purchase');
+const Drop = require('../models/Drop');
+const User = require('../models/User');
 
 exports.completePurchase = async (req, res) => {
   const { reservationId } = req.body;
@@ -62,5 +64,36 @@ exports.completePurchase = async (req, res) => {
     if (t) await t.rollback();
     console.error('Purchase Error:', err);
     res.status(500).json({ error: 'Failed to complete purchase. Internal server error.' });
+  }
+};
+
+exports.getUserPurchases = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const purchases = await Purchase.findAll({
+      where: { userId },
+      include: [{ model: Drop }],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(purchases);
+  } catch (err) {
+    console.error('Error fetching user purchases:', err);
+    res.status(500).json({ error: 'Failed to fetch purchase history.' });
+  }
+};
+
+exports.getAllPurchases = async (req, res) => {
+  try {
+    const purchases = await Purchase.findAll({
+      include: [
+        { model: Drop },
+        { model: User, attributes: ['id','username'] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(purchases);
+  } catch (err) {
+    console.error('Error fetching all purchases:', err);
+    res.status(500).json({ error: 'Failed to fetch all purchases.' });
   }
 };

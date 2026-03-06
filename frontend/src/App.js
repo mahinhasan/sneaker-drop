@@ -29,6 +29,46 @@ export default function App() {
     }
   }, [user.id, activeTab]);
 
+  // --- realtime socket.io connection ------------------------------------------------
+  useEffect(() => {
+    // determine socket URL (strip "/api" if present)
+    const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
+    const socketUrl = (process.env.REACT_APP_SOCKET_URL || apiBase).replace(/\/api\/?$/, '');
+    const { io } = require('socket.io-client');
+    const socket = io(socketUrl, { transports: ['websocket'] });
+
+    socket.on('connect', () => {
+      console.log('socket connected', socket.id);
+    });
+
+    // update drop inventory when any client modifies stock
+    socket.on('stockUpdated', ({ dropId, availableStock }) => {
+      setDrops(prev => prev.map(d => d.id === dropId ? { ...d, availableStock } : d));
+    });
+
+    // reservation expired -- if it belongs to this user clear local reservation
+    socket.on('reservationExpired', ({ dropId, userId }) => {
+      if (userId === user.id) {
+        setCurrentReservation(null);
+        addNotification('Your reservation expired', 'warning');
+      }
+    });
+
+    // purchase events for notifications
+    socket.on('purchaseMade', ({ dropId, userId, username }) => {
+      addNotification(`User ${username || userId} purchased item`, 'info');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('socket disconnected');
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user.id]);
+
+
   const loadData = async (showLoading = true) => {
     try {
       if (showLoading) setLoading(true);

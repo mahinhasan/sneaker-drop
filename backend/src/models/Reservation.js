@@ -20,6 +20,10 @@ const Reservation = sequelize.define('Reservation', {
   userId: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  dropId: {
+    type: DataTypes.UUID,
+    allowNull: false
   }
 }, {
   tableName: 'reservations'

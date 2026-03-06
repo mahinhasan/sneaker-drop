@@ -17,6 +17,10 @@ const Purchase = sequelize.define('Purchase', {
   userId: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  dropId: {
+    type: DataTypes.UUID,
+    allowNull: false
   }
 }, {
   tableName: 'purchases'

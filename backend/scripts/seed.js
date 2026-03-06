@@ -6,10 +6,10 @@ const Drop = require('../src/models/Drop');
   await sequelize.sync({ force: true });
   
   // Create users
-  await User.create({ id: 'user-1', user: 'alice', fullName: 'Alice Johnson', primaryEmail: 'alice@example.com' });
-  await User.create({ id: 'user-2', user: 'bob', fullName: 'Bob Smith', primaryEmail: 'bob@example.com' });
-  await User.create({ id: 'user-3', user: 'charlie', fullName: 'Charlie Brown', primaryEmail: 'charlie@example.com' });
-  await User.create({ id: 'user-4', user: 'diana', fullName: 'Diana Prince', primaryEmail: 'diana@example.com' });
+  await User.create({ id: 'user-1', username: 'alice' });
+  await User.create({ id: 'user-2', username: 'bob' });
+  await User.create({ id: 'user-3', username: 'charlie' });
+  await User.create({ id: 'user-4', username: 'diana' });
   
   // Create drops with different stock levels
   // Full Stock

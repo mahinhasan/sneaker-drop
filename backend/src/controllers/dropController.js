@@ -40,7 +40,7 @@ exports.getDrops = async (req, res) => {
           include: [
             { 
               model: User, 
-              attributes: ['id', 'user', 'fullName'] 
+              attributes: ['id', 'username'] 
             }
           ]
         }
