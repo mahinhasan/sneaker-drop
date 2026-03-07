@@ -116,3 +116,22 @@ The reservation logic in `reservationService.js` uses a strict isolation strateg
 - **Centered Layout**: Main content and navigation are restricted to a 60% container for a clean, focused ERP-like experience.
 - **Live Feed**: Each product card displays a real-time feed of recent successful purchases.
 - **Responsive Navigation**: Includes a dashboard for live drops and a comprehensive history section for both personal and system-wide orders.
+
+## Deployment & Real-Time Updates (Vercel)
+
+The application is configured for unified deployment on Vercel using `vercel.json`.
+
+### Important Note on Socket.io and Serverless Functions
+
+Vercel uses **Serverless Functions** (AWS Lambda) for the backend. Because serverless functions are short-lived and terminate after each request, they do not support persistent TCP/WebSocket connections.
+
+**Impact on Real-Time Features:**
+1. **Local Development**: In your local environment (using `node server.js`), updates are truly "instant" because a single persistent Node.js process manages all connections.
+2. **Production (Vercel)**: In production, `Socket.io` may experience delays or fail to push updates to other connected users because each "emit" event happens in a new, isolated serverless instance.
+
+**Current Mitigation Strategy:**
+- The frontend includes a **30-second background polling fallback** when running in production to ensure the stock eventually stays in sync even if the WebSocket event is missed.
+- The system uses **direct state updates** after important actions (Reserve/Purchase) to ensure the current user's UI is updated immediately.
+
+**Recommended for True Real-Time (Production):**
+For a high-traffic production "Sneaker Drop," it is recommended to host the backend on a platform that supports persistent processes (such as **Heroku**, **Railway**, or **Render**) or to use a dedicated real-time service (such as **Pusher** or **Ably**).

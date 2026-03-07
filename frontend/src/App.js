@@ -113,10 +113,14 @@ export default function App() {
       console.log('socket disconnected');
     });
 
+    // Fallback polling for serverless environments (e.g. Vercel) where WebSockets may be intermittent
+    const pollInterval = setInterval(() => loadData(false), 30000);
+
     return () => {
       socket.disconnect();
+      clearInterval(pollInterval);
     };
-  }, [addNotification]);
+  }, [addNotification, loadData]);
 
   // Separate effect for reservation expiration to avoid socket reconnection when user changes
   useEffect(() => {
@@ -186,6 +190,7 @@ export default function App() {
       const res = await reservationService.reserveItem(user.id, dropId);
       setCurrentReservation({ id: res.reservation.id, dropId: res.reservation.dropId, expiresAt: res.reservation.expiresAt });
       addNotification('Item reserved for 60 seconds!', 'success');
+      loadData(false);
     } catch (err) {
       addNotification(err.response?.data?.error || 'Reservation failed', 'danger');
     } finally {
