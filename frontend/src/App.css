@@ -235,6 +235,24 @@ body {
 }
 
 /* History Styles */
+.history-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .history-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+.history-main {
+  width: 100%;
+}
+
 .history-container {
   display: grid;
   grid-template-columns: 1fr 300px;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { dropService, reservationService, purchaseService } from './services/api';
 import DropCard from './components/DropCard';
+import OrderHistory from './components/OrderHistory';
 import './App.css';
 
 const PulseDot = ({ color = '#ff1744' }) => (
@@ -174,7 +175,7 @@ export default function App() {
           <main className="app-main">
             <div className="app-page-header">
               <div className="app-page-title">
-                <small className="app-page-sub">// {activeTab === 'dashboard' ? 'inventory status' : 'user account'}</small>
+               
                 {activeTab === 'dashboard' ? 'Live Drop Dashboard' : 'History & Management'}
               </div>
               <div className="app-live-row">
@@ -210,46 +211,13 @@ export default function App() {
                     </div>
                 )
             ) : (
-                <div className="history-container fade-up">
-                  <div className="history-column">
-                    <div className="history-card">
-                      <div className="history-title">My Order History</div>
-                      {purchases.length === 0 ? (
-                          <div style={{ color: 'var(--app-muted)', fontSize: 11 }}>No purchases found.</div>
-                      ) : (
-                          <div className="history-list">
-                            {purchases.map(p => (
-                                <div key={p.id} className="history-item">
-                                  <div className="history-item-info">
-                                    <div className="history-item-name">{p.Drop?.name || 'Unknown Item'}</div>
-                                    <div className="history-item-date">{new Date(p.createdAt).toLocaleString()}</div>
-                                  </div>
-                                  <div className="history-item-price">${parseFloat(p.Drop?.price || 0).toLocaleString()}</div>
-                                </div>
-                            ))}
-                          </div>
-                      )}
-                    </div>
-
-                    <div className="history-card" style={{ marginTop: '20px' }}>
-                      <div className="history-title">System Wide Orders</div>
-                      {allPurchases.length === 0 ? (
-                          <div style={{ color: 'var(--app-muted)', fontSize: 11 }}>No system orders yet.</div>
-                      ) : (
-                          <div className="history-list">
-                            {allPurchases.map(p => (
-                                <div key={p.id} className="history-item">
-                                  <div className="history-item-info">
-                                    <div className="history-item-name">{p.Drop?.name || 'Unknown Item'}</div>
-                                    <div className="history-item-user">User: {p.User?.user || p.userId}</div>
-                                    <div className="history-item-date">{new Date(p.createdAt).toLocaleString()}</div>
-                                  </div>
-                                  <div className="history-item-price">${parseFloat(p.Drop?.price || 0).toLocaleString()}</div>
-                                </div>
-                            ))}
-                          </div>
-                      )}
-                    </div>
+                <div className="history-layout fade-up">
+                  <div className="history-main">
+                    <OrderHistory
+                        purchases={purchases}
+                        allPurchases={allPurchases}
+                        currentUserId={user.id}
+                    />
                   </div>
 
                   <div className="history-card">

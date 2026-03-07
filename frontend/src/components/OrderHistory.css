@@ -1,0 +1,481 @@
+/* Order History Dashboard Styles */
+
+.order-history-dashboard {
+  animation: fadeUp 0.4s ease both;
+}
+
+.order-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--app-border);
+}
+
+.order-history-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.order-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 3px;
+}
+
+.order-tab:hover {
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+.order-tab.active {
+  background: var(--app-accent);
+  color: white;
+  border-color: var(--app-accent);
+}
+
+.tab-icon {
+  font-size: 13px;
+}
+
+.order-count-badge {
+  background: #1e293b;
+  padding: 6px 14px;
+  border: 1px solid var(--app-border);
+  font-size: 11px;
+  color: var(--app-muted);
+  letter-spacing: 1px;
+  border-radius: 3px;
+}
+
+/* Empty State */
+.order-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+  background: #1e293b;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  color: var(--app-text);
+}
+
+.empty-message {
+  font-size: 12px;
+  color: var(--app-muted);
+  letter-spacing: 0.5px;
+  max-width: 300px;
+}
+
+/* Table Wrapper and Styles */
+.order-table-wrapper {
+  background: #1e293b;
+  border: 1px solid var(--app-border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.order-table thead {
+  background: #0f172a;
+  border-bottom: 2px solid var(--app-border);
+}
+
+.order-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--app-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+}
+
+.order-table tbody tr {
+  border-bottom: 1px solid var(--app-border);
+  transition: background-color 0.2s ease;
+}
+
+.order-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.order-table td {
+  padding: 14px 16px;
+  vertical-align: middle;
+}
+
+/* Table Columns */
+.col-date {
+  width: 15%;
+  min-width: 100px;
+}
+
+.col-product {
+  width: 30%;
+  min-width: 150px;
+}
+
+.col-user {
+  width: 20%;
+  min-width: 100px;
+}
+
+.col-price {
+  width: 15%;
+  min-width: 80px;
+  text-align: right;
+}
+
+.col-status {
+  width: 15%;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Cell Content */
+.date-value {
+  font-weight: 600;
+  color: var(--app-text);
+  margin-bottom: 2px;
+}
+
+.time-value {
+  font-size: 10px;
+  color: var(--app-muted);
+}
+
+.product-name {
+  font-weight: 600;
+  color: var(--app-text);
+  margin-bottom: 4px;
+}
+
+.product-id {
+  font-size: 10px;
+  color: var(--app-muted);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.5px;
+}
+
+.user-badge {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--app-accent);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.price-amount {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--app-accent);
+  font-weight: 700;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #1e293b;
+  border: 1px solid var(--app-border);
+  border-top: none;
+  border-radius: 0 0 3px 3px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.pagination-info {
+  font-size: 11px;
+  color: var(--app-muted);
+  letter-spacing: 0.5px;
+}
+
+.pagination-info strong {
+  color: var(--app-text);
+  font-weight: 600;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.items-per-page {
+  background: #0f172a;
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
+  padding: 6px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.items-per-page:focus {
+  outline: none;
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  background: #0f172a;
+  border: 1px solid var(--app-border);
+  color: var(--app-accent);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--app-accent);
+}
+
+.pagination-btn:disabled {
+  color: var(--app-muted);
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.pagination-page {
+  background: #0f172a;
+  border: 1px solid var(--app-border);
+  color: var(--app-muted);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.pagination-page:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+.pagination-page.active {
+  background: var(--app-accent);
+  border-color: var(--app-accent);
+  color: white;
+}
+
+.pagination-dots {
+  color: var(--app-muted);
+  padding: 0 4px;
+  font-size: 10px;
+}
+
+/* Order Row Hover Effect */
+.order-row {
+  transition: background-color 0.2s ease;
+}
+
+.order-row:last-child {
+  border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .col-date {
+    width: 12%;
+  }
+
+  .col-product {
+    width: 28%;
+  }
+
+  .col-user {
+    width: 18%;
+  }
+
+  .col-price {
+    width: 18%;
+  }
+
+  .col-status {
+    width: 18%;
+  }
+
+  .order-table th,
+  .order-table td {
+    padding: 12px 12px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .order-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .order-history-tabs {
+    width: 100%;
+  }
+
+  .order-tab {
+    flex: 1;
+  }
+
+  .order-count-badge {
+    align-self: flex-end;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .items-per-page {
+    width: 100%;
+  }
+
+  .pagination-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pagination-pages {
+    flex: 1;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Table Responsiveness */
+  .order-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .col-user {
+    display: none;
+  }
+
+  .order-table th,
+  .order-table td {
+    padding: 10px 8px;
+    font-size: 10px;
+  }
+
+  .product-name {
+    font-size: 11px;
+  }
+
+  .price-amount {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .order-history-dashboard {
+    margin: -28px -28px 0 -28px;
+    padding: 28px;
+  }
+
+  .pagination-btn,
+  .pagination-page {
+    width: 28px;
+    height: 28px;
+    font-size: 10px;
+  }
+
+  .pagination-info {
+    font-size: 10px;
+    width: 100%;
+  }
+
+  .status-badge {
+    padding: 4px 8px;
+    font-size: 9px;
+  }
+}
