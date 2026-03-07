@@ -1,6 +1,5 @@
 const sequelize = require('../src/config/database');
 
-// load models to register associations
 require('../src/models/Drop');
 require('../src/models/User');
 require('../src/models/Purchase');

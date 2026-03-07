@@ -1,54 +1,35 @@
-const Drop = require('../models/Drop');
-const Purchase = require('../models/Purchase');
-const User = require('../models/User');
+const { createDrop, getDrops } = require('../services/dropService');
 
-// create a new merch drop
-exports.createDrop = async (req, res) => {
+async function createDropController(req, res) {
   try {
     const { name, price, totalStock, startTime } = req.body;
-    
-    if (!name || !price || totalStock === undefined) {
-      return res.status(400).json({ error: 'Name, price, and total stock are required.' });
-    }
-
-    const drop = await Drop.create({
-      name,
-      price,
-      totalStock,
-      availableStock: totalStock,
-      startTime: startTime ? new Date(startTime) : null
-    });
-
-    res.status(201).json(drop);
+    const drop = await createDrop(name, price, totalStock, startTime);
+    const returnData = { error: false, data: drop, message: 'Drop created successfully' };
+    res.status(201).json(returnData);
   } catch (err) {
     console.error('Error creating drop:', err);
-    res.status(500).json({ error: 'Failed to create drop. Please try again.' });
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Failed to create drop. Please try again.';
+    const returnData = { error: true, data: null, message };
+    res.status(statusCode).json(returnData);
   }
-};
+}
 
-// list active drops with top 3 recent purchasers
-exports.getDrops = async (req, res) => {
+async function getDropsController(req, res) {
   try {
-    const drops = await Drop.findAll({
-      order: [['createdAt', 'DESC']],
-      include: [
-        {
-          model: Purchase,
-          limit: 3,
-          separate: true, // Required for limit when including multiple
-          order: [['createdAt', 'DESC']],
-          include: [
-            { 
-              model: User, 
-              attributes: ['id', 'username'] 
-            }
-          ]
-        }
-      ]
-    });
-    res.json(drops);
+    const drops = await getDrops();
+    const returnData = { error: false, data: drops, message: 'Drops retrieved successfully' };
+    res.json(returnData);
   } catch (err) {
     console.error('Error fetching drops:', err);
-    res.status(500).json({ error: 'Failed to fetch drops.' });
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Failed to fetch drops.';
+    const returnData = { error: true, data: null, message };
+    res.status(statusCode).json(returnData);
   }
+}
+
+module.exports = {
+  createDropController,
+  getDropsController
 };

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createDrop, getDrops } = require('../controllers/dropController');
+const { createDropController, getDropsController } = require('../controllers/dropController');
 
-router.post('/', createDrop);
-router.get('/', getDrops);
+router.post('/', createDropController);
+router.get('/', getDropsController);
 
 module.exports = router;

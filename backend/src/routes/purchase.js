@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { completePurchase, getUserPurchases, getAllPurchases } = require('../controllers/purchaseController');
+const { completePurchaseController, getUserPurchasesController, getAllPurchasesController } = require('../controllers/purchaseController');
 
-router.post('/', completePurchase);
-router.get('/', getAllPurchases);
-router.get('/user/:userId', getUserPurchases);
+router.post('/', completePurchaseController);
+router.get('/', getAllPurchasesController);
+router.get('/user/:userId', getUserPurchasesController);
 
 module.exports = router;

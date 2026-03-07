@@ -5,7 +5,6 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const sequelize = require('./src/config/database');
 
-// load models to register associations
 require('./src/models/Drop');
 require('./src/models/User');
 require('./src/models/Purchase');
@@ -31,28 +30,44 @@ app.use('/api/drops', dropRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/purchases', purchaseRoutes);
 
-// simple health check
 app.get('/', (req, res) => res.send('Sneaker Drop API'));
 
-// initialize io util for controllers
 const ioUtil = require('./src/utils/io');
 ioUtil.init(io);
 
-// WebSocket event handling
 const realtime = require('./src/utils/realtime');
 realtime(io);
 
-// start background job to expire reservations every 5 seconds
-const { expireReservations } = require('./src/controllers/reservationController');
-setInterval(expireReservations, 5000);
+const { expireReservationsJob } = require('./src/controllers/reservationController');
+setInterval(expireReservationsJob, 5000);
 
-// start server
 const PORT = process.env.PORT || 5000;
+
+const { findOrCreateUser } = require('./src/services/userService');
+const { createDrop, getDrops } = require('./src/services/dropService');
 
 sequelize
   .authenticate()
-  .then(() => {
+  .then(async () => {
     console.log('DB connected');
+    
+    // Sync models
+    console.log('Synchronizing database...');
+    await sequelize.sync({ alter: true });
+    console.log('Database synchronized');
+    
+    // Ensure default user exists for frontend
+    await findOrCreateUser({ id: 'user-1', user: 'alice', fullName: 'Alice Smith' });
+
+    // Ensure at least one drop exists for a good first-run experience
+    const drops = await getDrops();
+    if (drops.length === 0) {
+      console.log('Initializing first-run drops...');
+      await createDrop('Air Jordan 1 Retro High OG', 199.99, 100);
+      await createDrop('Nike Dunk Low "Panda"', 129.99, 200);
+      await createDrop('Adidas Yeezy Boost 350 v2', 219.99, 50);
+    }
+    
     server.listen(PORT, () => console.log(`Server listening on ${PORT}`));
   })
   .catch((err) => console.error('DB connection error', err));

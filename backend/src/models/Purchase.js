@@ -26,7 +26,6 @@ const Purchase = sequelize.define('Purchase', {
   tableName: 'purchases'
 });
 
-// Associations
 Purchase.belongsTo(User, { foreignKey: 'userId' });
 Purchase.belongsTo(Drop, { foreignKey: 'dropId' });
 User.hasMany(Purchase, { foreignKey: 'userId' });

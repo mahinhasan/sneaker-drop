@@ -29,7 +29,6 @@ const Reservation = sequelize.define('Reservation', {
   tableName: 'reservations'
 });
 
-// Associations
 Reservation.belongsTo(User, { foreignKey: 'userId' });
 Reservation.belongsTo(Drop, { foreignKey: 'dropId' });
 User.hasMany(Reservation, { foreignKey: 'userId' });

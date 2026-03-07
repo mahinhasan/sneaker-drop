@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { reserveItem, getUserReservation, expireReservations } = require('../controllers/reservationController');
+const { reserveItemController, getUserReservationController } = require('../controllers/reservationController');
 
-router.post('/', reserveItem);
-// might have GET /:userId for user reservations
-router.get('/:userId', getUserReservation);
+router.post('/', reserveItemController);
+router.get('/:userId', getUserReservationController);
 
 module.exports = router;
