@@ -22,7 +22,7 @@ export default function DropCard({ drop, onReserve, onPurchase, loadingReservati
   }, [isReservedByMe, currentReservation]);
 
   return (
-        <div className={`drop-card ${isReservedByMe ? 'reserved' : ''}`}>
+        <div className={`drop-card ${isReservedByMe ? 'reserved' : ''} ${currentReservation && !isReservedByMe ? 'blurred' : ''}`}>
           {/* Status bar */}
           <div className={`drop-card-top-bar ${drop.availableStock > 0 ? 'available' : 'sold-out'}`}>
             {drop.availableStock > 0 ? `● Available Now` : '✕ Sold Out'}

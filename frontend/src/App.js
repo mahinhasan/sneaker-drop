@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { dropService, reservationService, purchaseService } from './services/api';
 import DropCard from './components/DropCard';
 import OrderHistory from './components/OrderHistory';
+import Login from './components/Login';
+import Register from './components/Register';
 import './App.css';
 
 const PulseDot = ({ color = '#ff1744' }) => (
@@ -10,7 +12,9 @@ const PulseDot = ({ color = '#ff1744' }) => (
 
 export default function App() {
   const [drops, setDrops] = useState([]);
-  const [user] = useState({ id: 'user-1', user: 'alice' });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [authView, setAuthView] = useState('login');
   const [currentReservation, setCurrentReservation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingReservations, setLoadingReservations] = useState({});
@@ -41,13 +45,14 @@ export default function App() {
   }, [addNotification]);
 
   const loadPurchases = useCallback(async () => {
+    if (!user) return;
     try {
       const data = await purchaseService.getUserPurchases(user.id);
       setPurchases(data);
     } catch (err) {
       addNotification('Failed to load purchase history', 'danger');
     }
-  }, [addNotification, user.id]);
+  }, [addNotification, user]);
 
   const loadAllPurchases = useCallback(async () => {
     try {
@@ -60,11 +65,11 @@ export default function App() {
 
   useEffect(() => {
     loadData();
-    if (activeTab === 'history') {
+    if (activeTab === 'history' && user) {
       loadPurchases();
       loadAllPurchases();
     }
-  }, [user.id, activeTab, loadData, loadPurchases, loadAllPurchases]);
+  }, [user, activeTab, loadData, loadPurchases, loadAllPurchases]);
 
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_BASE || 
@@ -85,7 +90,7 @@ export default function App() {
     });
 
     socket.on('reservationExpired', ({ dropId, userId }) => {
-      if (userId === user.id) {
+      if (user && userId === user.id) {
         setCurrentReservation(null);
         addNotification('Your reservation expired', 'warning');
       }
@@ -102,7 +107,30 @@ export default function App() {
     return () => {
       socket.disconnect();
     };
-  }, [user.id, addNotification]);
+  }, [user, addNotification]);
+
+  const handleAuth = (userData, token) => {
+    setUser(userData);
+    setToken(token);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    addNotification(`Welcome, ${userData.fullName || userData.user}!`, 'success');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    addNotification('Logged out successfully', 'info');
+  };
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser && token) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, [token]);
 
   const handleCreateDrop = async (e) => {
     e.preventDefault();
@@ -153,6 +181,32 @@ export default function App() {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="app-root">
+        <nav className="app-nav">
+          <div className="app-nav-logo">
+            👟 <span>SNEAKER</span>-DROP
+          </div>
+        </nav>
+        <main className="app-main">
+          {authView === 'login' ? (
+            <Login onLogin={handleAuth} onSwitch={() => setAuthView('register')} />
+          ) : (
+            <Register onRegister={handleAuth} onSwitch={() => setAuthView('login')} />
+          )}
+        </main>
+        <div className="app-notifications">
+          {notifications.map(n => (
+            <div key={n.id} className={`app-toast ${n.variant}`}>
+              {n.message}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
         <div className="app-root">
           <nav className="app-nav">
@@ -168,9 +222,9 @@ export default function App() {
                   </button>
               ))}
             </div>
-            <div className="app-nav-user">
+            <div className="app-nav-user" onClick={handleLogout} style={{ cursor: 'pointer' }} title="Click to logout">
               <div className="app-live-badge"><PulseDot /> Live</div>
-              <div className="app-avatar">A</div>
+              <div className="app-avatar">{user.fullName?.[0] || user.user?.[0]?.toUpperCase()}</div>
               <div className="app-username">{user.user}</div>
             </div>
           </nav>

@@ -13,6 +13,7 @@ require('./src/models/Reservation');
 const dropRoutes = require('./src/routes/drop');
 const reservationRoutes = require('./src/routes/reservation');
 const purchaseRoutes = require('./src/routes/purchase');
+const authRoutes = require('./src/routes/auth');
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,7 @@ app.use(express.json());
 app.use('/api/drops', dropRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/purchases', purchaseRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req, res) => res.send('Sneaker Drop API'));
 
