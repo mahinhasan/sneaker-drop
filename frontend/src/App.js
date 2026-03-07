@@ -218,7 +218,7 @@ export default function App() {
                   <button key={tab}
                           className={`app-nav-link ${activeTab === tab ? 'active' : ''}`}
                           onClick={() => setActiveTab(tab)}>
-                    {tab === 'dashboard' ? 'Dashboard' : 'Order History'}
+                    {tab === 'dashboard' ? 'Marketplace' : 'Management'}
                   </button>
               ))}
             </div>
