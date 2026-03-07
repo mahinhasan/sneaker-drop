@@ -6,9 +6,11 @@ const User = require('../models/User');
 
 async function completePurchase(reservationId) {
   if (!reservationId) {
-    throw {
+    return {
+      error: true,
       statusCode: 400,
-      message: 'Reservation ID is required to complete purchase.'
+      message: 'Reservation ID is required to complete purchase.',
+      data: null
     };
   }
 
@@ -21,25 +23,31 @@ async function completePurchase(reservationId) {
 
     if (!reservation) {
       await t.rollback();
-      throw {
+      return {
+        error: true,
         statusCode: 404,
-        message: 'Reservation not found.'
+        message: 'Reservation not found.',
+        data: null
       };
     }
 
     if (reservation.completed) {
       await t.rollback();
-      throw {
+      return {
+        error: true,
         statusCode: 400,
-        message: 'Reservation has already been processed or expired.'
+        message: 'Reservation has already been processed or expired.',
+        data: null
       };
     }
 
     if (new Date(reservation.expiresAt) < new Date()) {
       await t.rollback();
-      throw {
+      return {
+        error: true,
         statusCode: 400,
-        message: 'Reservation has expired.'
+        message: 'Reservation has expired.',
+        data: null
       };
     }
 
@@ -65,33 +73,53 @@ async function completePurchase(reservationId) {
       username: userRecord ? userRecord.user : purchase.userId
     });
 
-    return purchase;
+    return {
+      error: false,
+      statusCode: 200,
+      message: 'Purchase completed successfully',
+      data: { purchase }
+    };
   } catch (err) {
     if (t) await t.rollback();
     console.error('Purchase Error:', err);
-    if (err.statusCode) {
-      throw err;
-    }
-    throw {
+    return {
+      error: true,
       statusCode: 500,
-      message: 'Failed to complete purchase. Internal server error.'
+      message: 'Failed to complete purchase. Internal server error.',
+      data: null
     };
   }
 }
 
 async function getUserPurchases(userId) {
+  if (!userId) {
+    return {
+      error: true,
+      statusCode: 400,
+      message: 'User ID is required.',
+      data: null
+    };
+  }
+
   try {
     const purchases = await Purchase.findAll({
       where: { userId },
       include: [{ model: Drop }],
       order: [['createdAt', 'DESC']]
     });
-    return purchases;
+    return {
+      error: false,
+      statusCode: 200,
+      message: 'User purchases retrieved successfully',
+      data: purchases
+    };
   } catch (err) {
     console.error('Error fetching user purchases:', err);
-    throw {
+    return {
+      error: true,
       statusCode: 500,
-      message: 'Failed to fetch purchase history.'
+      message: 'Failed to fetch purchase history.',
+      data: null
     };
   }
 }
@@ -105,12 +133,19 @@ async function getAllPurchases() {
       ],
       order: [['createdAt', 'DESC']]
     });
-    return purchases;
+    return {
+      error: false,
+      statusCode: 200,
+      message: 'All purchases retrieved successfully',
+      data: purchases
+    };
   } catch (err) {
     console.error('Error fetching all purchases:', err);
-    throw {
+    return {
+      error: true,
       statusCode: 500,
-      message: 'Failed to fetch all purchases.'
+      message: 'Failed to fetch all purchases.',
+      data: null
     };
   }
 }
