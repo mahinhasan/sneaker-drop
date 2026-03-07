@@ -7,22 +7,22 @@ const api = axios.create({
 });
 
 const dropService = {
-  getDrops: () => api.get('/drops').then(res => res.data),
-  createDrop: (data) => api.post('/drops', data).then(res => res.data),
+  getDrops: () => api.get('/drops').then(res => res.data.data),
+  createDrop: (data) => api.post('/drops', data).then(res => res.data.data),
 };
 
 const reservationService = {
   reserveItem: (userId, dropId) => 
-    api.post('/reservations', { userId, dropId }).then(res => res.data),
+    api.post('/reservations', { userId, dropId }).then(res => res.data.data),
 };
 
 const purchaseService = {
   completePurchase: (reservationId) => 
-    api.post('/purchases', { reservationId }).then(res => res.data),
+    api.post('/purchases', { reservationId }).then(res => res.data.data),
   getUserPurchases: (userId) =>
-    api.get(`/purchases/user/${userId}`).then(res => res.data),
+    api.get(`/purchases/user/${userId}`).then(res => res.data.data),
   getAllPurchases: () =>
-    api.get('/purchases').then(res => res.data),
+    api.get('/purchases').then(res => res.data.data),
 };
 
 export { 

@@ -29,9 +29,7 @@ export default function App() {
     }
   }, [user.id, activeTab]);
 
-  // --- realtime socket.io connection ------------------------------------------------
   useEffect(() => {
-    // determine socket URL (strip "/api" if present)
     const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
     const socketUrl = (process.env.REACT_APP_SOCKET_URL || apiBase).replace(/\/api\/?$/, '');
     const { io } = require('socket.io-client');
@@ -41,12 +39,10 @@ export default function App() {
       console.log('socket connected', socket.id);
     });
 
-    // update drop inventory when any client modifies stock
     socket.on('stockUpdated', ({ dropId, availableStock }) => {
       setDrops(prev => prev.map(d => d.id === dropId ? { ...d, availableStock } : d));
     });
 
-    // reservation expired -- if it belongs to this user clear local reservation
     socket.on('reservationExpired', ({ dropId, userId }) => {
       if (userId === user.id) {
         setCurrentReservation(null);
@@ -54,7 +50,6 @@ export default function App() {
       }
     });
 
-    // purchase events for notifications
     socket.on('purchaseMade', ({ dropId, userId, username }) => {
       addNotification(`User ${username || userId} purchased item`, 'info');
     });
@@ -156,7 +151,6 @@ export default function App() {
 
   return (
         <div className="app-root">
-          {/* NAV */}
           <nav className="app-nav">
             <div className="app-nav-logo">
               👟 <span>SNEAKER</span>-DROP
@@ -177,7 +171,6 @@ export default function App() {
             </div>
           </nav>
 
-          {/* MAIN */}
           <main className="app-main">
             <div className="app-page-header">
               <div className="app-page-title">
@@ -301,7 +294,6 @@ export default function App() {
             )}
           </main>
 
-          {/* TOASTS */}
           <div className="app-toast-wrap">
             {notifications.map(n => (
                 <div key={n.id} className={`app-toast ${n.variant}`}>{n.message}</div>
