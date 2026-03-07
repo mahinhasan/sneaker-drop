@@ -1,81 +1,105 @@
-# 👟 Sneaker-Drop Inventory System
+# Sneaker-Drop Inventory System
 
-Professional Real-Time High-Traffic Inventory System for Limited Edition Sneaker Drops. Built with **React**, **Node.js/Express**, **PostgreSQL (Sequelize)**, and **Socket.io**.
+A professional, real-time inventory management system for high-traffic limited edition sneaker drops. This application ensures data integrity during massive traffic spikes using advanced database techniques and provides a seamless user experience with real-time updates.
 
----
+## Technical Stack
 
-## 🛠️ Architecture & Professional Implementation
+- **Frontend**: React.js with custom CSS (Ashy Dark Theme)
+- **Backend**: Node.js and Express
+- **Database**: PostgreSQL
+- **ORM**: Sequelize
+- **Real-time Communication**: Socket.io (WebSockets)
+- **Deployment**: Vercel ready
 
-### ⚡ Professional Layout & UX
-- **ERP-Inspired UI**: A clean, professional dashboard using a customized **Bootstrap 5** implementation.
-- **Component-Based Architecture**: Modularized frontend with reusable components (`DropCard`, `apiService`) and custom hooks.
-- **Real-Time Visibility**: Instant stock synchronization across all connected clients via WebSockets.
-- **Feedback-First Design**: Loading states, pulse animations, and interactive toast notifications for all system events.
+## Project Structure
 
-### 🛡️ Atomic Reservation System (Concurrency Control)
-- **Problem**: Overselling in high-traffic scenarios (e.g., 100 users for 1 item).
-- **Solution**: Implemented using **Serializable Transactions** with **FOR UPDATE row-level locking** in PostgreSQL.
-- **Mechanism**: The reservation transaction checks `availableStock`, decrements it, and creates the reservation record atomically. If the stock is 0 or a serialization error occurs (due to concurrent writes), the transaction rolls back and the user is notified.
+- `backend/`: Node.js server, services, and PostgreSQL models.
+- `frontend/`: React application and styles.
+- `vercel.json`: Configuration for unified deployment.
 
-### 🔄 Intelligent Stock Recovery (Expiration Logic)
-- **Mechanism**: Reservations have a 60-second TTL (`expiresAt`).
-- **Recovery Job**: A transactional background worker identifies expired reservations, restores stock to the main pool, and broadcasts the update.
-- **Real-Time Notification**: The specific user whose reservation expired receives a targeted WebSocket notification to clear their local "Reserved" state.
+## Getting Started
 
----
+### Prerequisites
 
-## 🚀 Getting Started
+- Node.js (v16 or higher)
+- PostgreSQL database instance
 
-### 1. Prerequisites
-- Node.js (v16+)
-- PostgreSQL
+### Database Setup
 
-### 2. Backend Setup
+The application uses Sequelize's `sync({ alter: true })` mechanism, which automatically creates and updates the database schema based on the defined models. There is no need for manual SQL scripts.
+
+1. Create a PostgreSQL database (e.g., `sneaker_drop`).
+2. Configure the connection in `backend/.env`.
+
+### Environment Configuration
+
+Create a `.env` file in the `backend/` directory with the following variables:
+
+```env
+DB_NAME=sneaker_drop
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+PORT=5000
+FRONTEND_URL=http://localhost:3000
+```
+
+### Installation and Running
+
+#### 1. Backend
+
 ```bash
 cd backend
 npm install
-cp .env.example .env   # Update with your DB credentials
-npm run db:migrate     # Initialize schema
-npm run db:seed        # Seed sample sneakers
-npm start              # Starts on http://localhost:5000
+npm start
 ```
 
-### 3. Frontend Setup
+On first run, the system automatically:
+- Synchronizes the database schema.
+- Creates a default user (`alice`).
+- Initializes three sample sneaker drops.
+
+#### 2. Frontend
+
 ```bash
 cd frontend
 npm install
-npm start              # Starts on http://localhost:3000
+npm start
 ```
 
----
+The frontend will be available at `http://localhost:3000`.
 
-## 📦 Features & API
+## Architecture Choices
 
-### Drop Activity Feed
-- **Top 3 Purchasers**: Each product card displays the three most recent successful buyers, fetched via nested Sequelize includes.
-- **Live Stock**: A dynamic progress bar reflects the current inventory status in real-time.
+### 60-Second Reservation Expiration
 
-### API Endpoints
-- `POST /api/drops`: Initialize a new sneaker drop (Admins).
-- `GET /api/drops`: Retrieve all active drops with nested purchase history.
-- `POST /api/reservations`: Atomic item reservation.
-- `POST /api/purchases`: Finalize purchase using a valid reservation ID.
+To handle limited stock effectively, the system implements a temporary reservation window.
 
----
+1. **Reservation Record**: When a user clicks "Reserve", a record is created in the `reservations` table with an `expiresAt` timestamp set to 60 seconds from the current time.
+2. **Background Job**: The backend runs a periodic job (every 5 seconds) that identifies expired and uncompleted reservations.
+3. **Stock Recovery**: When a reservation expires:
+   - The `completed` flag is set to `true` (to prevent re-processing).
+   - The `availableStock` for the associated item is incremented by 1.
+   - A WebSocket event (`stockUpdated`) is broadcast to all clients to update the UI.
+   - A specific event (`reservationExpired`) is sent to the affected user to reset their local UI state.
 
-## 🧪 Testing Concurrency
-To verify the "No Overselling" rule:
-1. Open two browser windows side-by-side.
-2. Observe the real-time stock count update in Window B when you click "Reserve" in Window A.
-3. Wait 60 seconds to see the stock automatically "recover" back to the available pool.
+### Concurrency and Atomic Reservations
 
----
+The most critical challenge in a "Drop" scenario is preventing overselling when hundreds of users attempt to reserve the last remaining item simultaneously.
 
-## 📹 Deployment & Demo
-- **Hosted Database**: Neon PostgreSQL (Serverless).
-- **Hosting**: Vercel (Frontend & Serverless Functions).
-- **Demo**: [Insert Loom Link Here]
+**Solution: Serializable Transactions with Row-Level Locking**
 
----
+The reservation logic in `reservationService.js` uses a strict isolation strategy:
 
-Developed with ❤️ for the Sneaker Drop Technical Assessment.
+1. **Serializable Isolation**: The transaction is initiated with `ISOLATION_LEVELS.SERIALIZABLE`, the highest level of isolation, which prevents phantom reads and serialization anomalies.
+2. **Row-Level Locking**: The `Drop.findByPk` call uses `lock: t.LOCK.UPDATE`. This places an exclusive lock on the specific sneaker's row. Any concurrent transaction attempting to read or update this row must wait until the first one commits or rolls back.
+3. **Atomic Decrement**: Inside the locked transaction, the system checks if `availableStock > 0`. If yes, it decrements the stock and creates the reservation record in one atomic step.
+4. **Error Handling**: If two transactions conflict, PostgreSQL raises a serialization error. The backend catches this and returns a "Concurrency conflict" message, prompting the user to try again safely.
+
+## UI & Design Features
+
+- **Ashy Theme**: A professional, high-contrast dark theme (Slate & Indigo) designed for readability.
+- **Centered Layout**: Main content and navigation are restricted to a 60% container for a clean, focused ERP-like experience.
+- **Live Feed**: Each product card displays a real-time feed of recent successful purchases.
+- **Responsive Navigation**: Includes a dashboard for live drops and a comprehensive history section for both personal and system-wide orders.
