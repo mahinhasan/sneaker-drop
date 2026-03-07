@@ -17,13 +17,23 @@ const purchaseRoutes = require('./src/routes/purchase');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
+  path: '/socket.io/',
   cors: {
-    origin: process.env.FRONTEND_URL || '*',
-    methods: ['GET', 'POST']
-  }
+    origin: true,
+    methods: ['GET', 'POST'],
+    credentials: true
+  },
+  transports: ['polling', 'websocket']
 });
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+const corsOptions = {
+  origin: true, // Allow all origins for easier dev/testing, or use '*'
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/drops', dropRoutes);

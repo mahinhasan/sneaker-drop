@@ -67,10 +67,14 @@ export default function App() {
   }, [user.id, activeTab, loadData, loadPurchases, loadAllPurchases]);
 
   useEffect(() => {
-    const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
+    const apiBase = process.env.REACT_APP_API_BASE || 
+      (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.origin}/api`);
     const socketUrl = (process.env.REACT_APP_SOCKET_URL || apiBase).replace(/\/api\/?$/, '');
     const { io } = require('socket.io-client');
-    const socket = io(socketUrl, { transports: ['websocket'] });
+    const socket = io(socketUrl, { 
+      path: '/socket.io/',
+      transports: ['polling', 'websocket'] 
+    });
 
     socket.on('connect', () => {
       console.log('socket connected', socket.id);

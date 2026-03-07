@@ -70,6 +70,19 @@ npm start
 
 The frontend will be available at `http://localhost:3000`.
 
+## Troubleshooting
+
+### LocalNetworkAccessPermissionDenied Error
+
+This error typically occurs in browsers (especially when using Chrome/Edge on private networks) when trying to access a local server (like `localhost:5000`) from a different hostname or IP.
+
+**To resolve this:**
+
+1. **Use matching hostnames**: Access the frontend via `http://localhost:3000` if the backend is running on `localhost`.
+2. **Access via Local IP**: If you are testing across devices, use your machine's local IP (e.g., `http://192.168.1.5:3000`) for both the frontend URL and the `REACT_APP_API_BASE` variable.
+3. **Browser Flags**: In Chrome, you can temporarily disable the "Block insecure private network requests" flag at `chrome://flags/#block-insecure-private-network-requests` (for development purposes only).
+4. **Environment Variables**: Ensure your `frontend/.env` (if using one) or the shell environment has the correct `REACT_APP_API_BASE` pointing to your backend's reachable address.
+
 ## Architecture Choices
 
 ### 60-Second Reservation Expiration
