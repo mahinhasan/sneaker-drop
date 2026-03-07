@@ -74,8 +74,7 @@ export default function App() {
   }, [user, activeTab, loadData, loadPurchases, loadAllPurchases]);
 
   useEffect(() => {
-    const apiBase = process.env.REACT_APP_API_BASE || 
-      (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.origin}/api`);
+    const apiBase = process.env.REACT_APP_API_BASE || (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://drop.atysan.xyz/api');
     const socketUrl = (process.env.REACT_APP_SOCKET_URL || apiBase).replace(/\/api\/?$/, '');
     
     const socket = io(socketUrl, { 
