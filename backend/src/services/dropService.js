@@ -39,6 +39,9 @@ async function createDrop(name, price, totalStock, startTime) {
       startTime: startTime ? new Date(startTime) : null
     });
 
+    const io = require('../utils/io').getIo();
+    io.emit('dropCreated', drop);
+
     return {
       error: false,
       statusCode: 201,

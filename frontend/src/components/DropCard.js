@@ -84,8 +84,8 @@ export default function DropCard({ drop, onReserve, onPurchase, loadingReservati
             {drop.Purchases && drop.Purchases.length > 0 && (
                 <div className="drop-card-feed">
                   <div className="drop-card-feed-label">Live Purchase Feed</div>
-                  {drop.Purchases.map((p) => (
-                      <div key={p.id} className="drop-card-feed-item">
+                  {drop.Purchases.map((p, index) => (
+                      <div key={p.id || index} className="drop-card-feed-item">
                         <span className="drop-card-feed-dot" />
                         <span className="drop-card-feed-user">{p.User.user}</span>
                         <span>just secured a pair</span>

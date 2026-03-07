@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { dropService, reservationService, purchaseService } from './services/api';
 import DropCard from './components/DropCard';
 import OrderHistory from './components/OrderHistory';
@@ -25,6 +26,7 @@ export default function App() {
   const [allPurchases, setAllPurchases] = useState([]);
   const [dropForm, setDropForm] = useState({ name: '', price: '', stock: '' });
   const [isCreatingDrop, setIsCreatingDrop] = useState(false);
+  const socketRef = useRef(null);
 
   const addNotification = useCallback((message, variant = 'info') => {
     const id = Date.now();
@@ -75,11 +77,12 @@ export default function App() {
     const apiBase = process.env.REACT_APP_API_BASE || 
       (window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : `${window.location.origin}/api`);
     const socketUrl = (process.env.REACT_APP_SOCKET_URL || apiBase).replace(/\/api\/?$/, '');
-    const { io } = require('socket.io-client');
+    
     const socket = io(socketUrl, { 
       path: '/socket.io/',
       transports: ['polling', 'websocket'] 
     });
+    socketRef.current = socket;
 
     socket.on('connect', () => {
       console.log('socket connected', socket.id);
@@ -89,15 +92,21 @@ export default function App() {
       setDrops(prev => prev.map(d => d.id === dropId ? { ...d, availableStock } : d));
     });
 
-    socket.on('reservationExpired', ({ dropId, userId }) => {
-      if (user && userId === user.id) {
-        setCurrentReservation(null);
-        addNotification('Your reservation expired', 'warning');
-      }
+    socket.on('dropCreated', (newDrop) => {
+      setDrops(prev => [newDrop, ...prev]);
+      addNotification(`New drop alert: ${newDrop.name}!`, 'info');
     });
 
     socket.on('purchaseMade', ({ dropId, userId, username }) => {
       addNotification(`User ${username || userId} purchased item`, 'info');
+      // Update the drop's recent purchasers if it's currently in the list
+      setDrops(prev => prev.map(d => {
+        if (d.id === dropId) {
+          const newPurchases = [{ User: { user: username || userId } }, ...(d.Purchases || [])].slice(0, 3);
+          return { ...d, Purchases: newPurchases };
+        }
+        return d;
+      }));
     });
 
     socket.on('disconnect', () => {
@@ -106,6 +115,24 @@ export default function App() {
 
     return () => {
       socket.disconnect();
+    };
+  }, [addNotification]);
+
+  // Separate effect for reservation expiration to avoid socket reconnection when user changes
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    const handleExpiration = ({ dropId, userId }) => {
+      if (user && userId === user.id) {
+        setCurrentReservation(null);
+        addNotification('Your reservation expired', 'warning');
+      }
+    };
+
+    socket.on('reservationExpired', handleExpiration);
+    return () => {
+      socket.off('reservationExpired', handleExpiration);
     };
   }, [user, addNotification]);
 
