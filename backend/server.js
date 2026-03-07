@@ -19,18 +19,26 @@ const server = http.createServer(app);
 const io = new Server(server, {
   path: '/socket.io/',
   cors: {
-    origin: true,
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true
   },
   transports: ['polling', 'websocket']
 });
 
 const corsOptions = {
-  origin: true, // Allow all origins for easier dev/testing, or use '*'
+  origin: (origin, callback) => {
+    // In production, you might want to restrict this to your specific frontend URL
+    callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
