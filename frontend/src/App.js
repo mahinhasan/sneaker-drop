@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { dropService, reservationService, purchaseService } from './services/api';
 import DropCard from './components/DropCard';
 import OrderHistory from './components/OrderHistory';
@@ -22,13 +22,49 @@ export default function App() {
   const [dropForm, setDropForm] = useState({ name: '', price: '', stock: '' });
   const [isCreatingDrop, setIsCreatingDrop] = useState(false);
 
+  const addNotification = useCallback((message, variant = 'info') => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, variant }]);
+    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 5000);
+  }, []);
+
+  const loadData = useCallback(async (showLoading = true) => {
+    try {
+      if (showLoading) setLoading(true);
+      const data = await dropService.getDrops();
+      setDrops(data);
+    } catch (err) {
+      addNotification('Failed to load drops', 'danger');
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  }, [addNotification]);
+
+  const loadPurchases = useCallback(async () => {
+    try {
+      const data = await purchaseService.getUserPurchases(user.id);
+      setPurchases(data);
+    } catch (err) {
+      addNotification('Failed to load purchase history', 'danger');
+    }
+  }, [addNotification, user.id]);
+
+  const loadAllPurchases = useCallback(async () => {
+    try {
+      const data = await purchaseService.getAllPurchases();
+      setAllPurchases(data);
+    } catch (err) {
+      addNotification('Failed to load system orders', 'danger');
+    }
+  }, [addNotification]);
+
   useEffect(() => {
     loadData();
     if (activeTab === 'history') {
       loadPurchases();
       loadAllPurchases();
     }
-  }, [user.id, activeTab]);
+  }, [user.id, activeTab, loadData, loadPurchases, loadAllPurchases]);
 
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
@@ -62,38 +98,7 @@ export default function App() {
     return () => {
       socket.disconnect();
     };
-  }, [user.id]);
-
-
-  const loadData = async (showLoading = true) => {
-    try {
-      if (showLoading) setLoading(true);
-      const data = await dropService.getDrops();
-      setDrops(data);
-    } catch (err) {
-      addNotification('Failed to load drops', 'danger');
-    } finally {
-      if (showLoading) setLoading(false);
-    }
-  };
-
-  const loadPurchases = async () => {
-    try {
-      const data = await purchaseService.getUserPurchases(user.id);
-      setPurchases(data);
-    } catch (err) {
-      addNotification('Failed to load purchase history', 'danger');
-    }
-  };
-
-  const loadAllPurchases = async () => {
-    try {
-      const data = await purchaseService.getAllPurchases();
-      setAllPurchases(data);
-    } catch (err) {
-      addNotification('Failed to load system orders', 'danger');
-    }
-  };
+  }, [user.id, addNotification]);
 
   const handleCreateDrop = async (e) => {
     e.preventDefault();
@@ -113,12 +118,6 @@ export default function App() {
     } finally {
       setIsCreatingDrop(false);
     }
-  };
-
-  const addNotification = (message, variant = 'info') => {
-    const id = Date.now();
-    setNotifications(prev => [...prev, { id, message, variant }]);
-    setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 5000);
   };
 
   const handleReserve = async (dropId) => {
